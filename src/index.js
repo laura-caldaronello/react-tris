@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+const rows = 3;
+
 function Square(props) {
     return (
       <button className="square" onClick={props.onClick}>
@@ -21,24 +23,19 @@ function Square(props) {
     }
   
     render() {
+      var structure = [];
+      var row = [];
+      var num = 0;
+      for (let i = 0; i < rows; i++) {
+        for (let t = 0; t < rows; t++) {
+          row.push(this.renderSquare(num));
+          num++;
+        }
+        structure.push(<div className="board-row">{row[i]}</div>);
+      }
+      console.log(structure);
       return (
-        <div>
-          <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-          </div>
-        </div>
+        <div>{structure}</div>
       );
     }
   }
@@ -54,6 +51,7 @@ function Square(props) {
           }
         ],
         stepNumber: 0,
+        selected: null,
         xIsNext: true
       };
     }
@@ -62,7 +60,6 @@ function Square(props) {
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
       const current = history[history.length - 1];
       const squares = current.squares.slice();
-
       
       if (calculateWinner(squares) || squares[i]) {
           return;
@@ -76,6 +73,7 @@ function Square(props) {
                 }
             ]),
             stepNumber: history.length,
+            selected: null,
             xIsNext: !this.state.xIsNext
         });
     }
@@ -83,6 +81,7 @@ function Square(props) {
     jumpTo(step) {
       this.setState({
         stepNumber: step,
+        selected: step,
         xIsNext: (step % 2) === 0
       });
     }
@@ -98,7 +97,7 @@ function Square(props) {
           'Go to game start';
         return (
           <li key={move}>
-            <button onClick={() => this.jumpTo(move)}>{desc}</button>
+            <button className={(move === this.state.selected) ? "highlighted" : ""} onClick={() => this.jumpTo(move)}>{desc}</button>
           </li>
         );
       });
