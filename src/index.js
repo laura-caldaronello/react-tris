@@ -13,27 +13,27 @@ function Square(props) {
   }
   
   class Board extends React.Component {
-    renderSquare(i) {
+    renderSquare(i,k) {
       return (
         <Square
           value={this.props.squares[i]}
           onClick={() => this.props.onClick(i)}
+          key={k}
         />
       );
     }
   
     render() {
       var structure = [];
-      var row = [];
       var num = 0;
       for (let i = 0; i < rows; i++) {
+        var row = [];
         for (let t = 0; t < rows; t++) {
-          row.push(this.renderSquare(num));
+          row.push(this.renderSquare(num,"square-" + num));
           num++;
         }
-        structure.push(<div className="board-row">{row[i]}</div>);
+        structure.push(<div className="board-row" key={"board-row-" + i}>{row}</div>);
       }
-      console.log(structure);
       return (
         <div>{structure}</div>
       );
@@ -79,11 +79,26 @@ function Square(props) {
     }
   
     jumpTo(step) {
+      for (let t = 0; t < 9; t++) {
+        document.getElementsByClassName('square')[t].classList.remove('highlighted');
+      }
       this.setState({
         stepNumber: step,
         selected: step,
         xIsNext: (step % 2) === 0
       });
+    }
+
+    reorder(moves) {
+      var invisible = document.getElementsByClassName('invisible')[0];
+      if (invisible.classList.contains('reverse')) {
+        invisible.classList.remove('invisible');
+        document.getElementsByClassName('ordered')[0].classList.add('invisible');
+      }
+      else {
+        invisible.classList.remove('invisible');
+        document.getElementsByClassName('reverse')[0].classList.add('invisible');
+      }
     }
   
     render() {
@@ -101,6 +116,8 @@ function Square(props) {
           </li>
         );
       });
+
+      const par = (moves.length === 10) ? 'No one wins' : '';
   
       let status;
       if (winner) {
@@ -119,8 +136,13 @@ function Square(props) {
           </div>
           <div className="game-info">
             <div>{status}</div>
-            <ol>{moves}</ol>
+            <ol className="ordered">{moves}</ol>
+            <ol className="reverse invisible">{moves}</ol>
           </div>
+          <div>
+            <button onClick={() => this.reorder(moves)}>reorder moves</button>
+          </div>
+          <div>{par}</div>
         </div>
       );
     }
@@ -144,6 +166,10 @@ function Square(props) {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        var array = [a,b,c];
+        for (let t = 0; t < array.length; t++) {
+          document.getElementsByClassName('square')[array[t]].classList.add('highlighted');
+        }
         return squares[a];
       }
     }
